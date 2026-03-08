@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartToolsHub - Free Digital Tools for Everyone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent: '#ec4899',
+                        dark: '#0f172a',
+                        darker: '#020617',
+                    },
+                    animation: {
+                        'gradient': 'gradient 8s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        }
+        .tool-active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+        }
+        .input-field {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen overflow-x-hidden">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="showDashboard()">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                        <i class="fas fa-bolt text-white text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold gradient-text">SmartToolsHub</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <button onclick="showDashboard()" class="hover:text-primary transition-colors">Dashboard</button>
+                    <button onclick="scrollToTools()" class="hover:text-primary transition-colors">All Tools</button>
+                    <button class="btn-primary px-6 py-2 rounded-full font-medium">Get Started</button>
+                </div>
+                <button class="md:hidden text-2xl" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden glass border-t border-white/10">
+            <div class="px-4 pt-2 pb-4 space-y-2">
+                <button onclick="showDashboard()" class="block w-full text-left py-2 hover:text-primary">Dashboard</button>
+                <button onclick="scrollToTools()" class="block w-full text-left py-2 hover:text-primary">All Tools</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 relative overflow-hidden">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 2s;"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center px-4 py-2 rounded-full glass mb-6 animate-float">
+                <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                <span class="text-sm font-medium text-gray-300">Free Forever • No Sign-up Required</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Powerful Digital Tools <br>
+                <span class="gradient-text">Accessible to Everyone</span>
+            </h1>
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+                SmartToolsHub exists to make powerful digital tools accessible to everyone for free. 
+                Boost your productivity with our AI-powered utilities.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="scrollToTools()" class="btn-primary px-8 py-4 rounded-full font-semibold text-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-rocket"></i> Explore Tools
+                </button>
+                <button class="glass px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-play-circle"></i> Watch Demo
+                </button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
+                <div class="glass rounded-2xl p-4">
+                    <div class="text-3xl font-bold text-primary">7+</div>
+                    <div class="text-sm text-gray-400">Free Tools</div>
+                </div>
+                <div class="glass rounded-2xl p-4">
+                    <div class="text-3xl font-bold text-secondary">100%</div>
+                    <div class="text-sm text-gray-400">Free to Use</div>
+                </div>
+                <div class="glass rounded-2xl p-4">
+                    <div class="text-3xl font-bold text-accent">0</div>
+                    <div class="text-sm text-gray-400">Sign-up Needed</div>
+                </div>
+                <div class="glass rounded-2xl p-4">
+                    <div class="text-3xl font-bold text-green-400">24/7</div>
+                    <div class="text-sm text-gray-400">Available</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Grid -->
+    <section id="tools" class="py-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Choose Your Tool</h2>
+                <p class="text-gray-400">Select from our collection of powerful, free utilities</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- AI Paraphraser -->
+                <div onclick="openTool('paraphraser')" class="glass-card rounded-2xl p-6 cursor-pointer group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-sync-alt text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">AI Paraphraser</h3>
+                    <p class="text-gray-400 text-sm mb-4">Rewrite and enhance your text with AI-powered paraphrasing</p>
+                    <div class="flex items-center text-primary text-sm font-medium">
+                        <span>Use Tool</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- YouTube Title Generator -->
+                <div onclick="openTool('youtube')" class="glass-card rounded-2xl p-6 cursor-pointer group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fab fa-youtube text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">YouTube Titles</h3>
+                    <p class="text-gray-400 text-sm mb-4">Generate viral, click-worthy YouTube video titles instantly</p>
+                    <div class="flex items-center text-primary text-sm font-medium">
+                        <span>Use Tool</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- TikTok Hook Generator -->
+                <div onclick="openTool('tiktok')" class="glass-card rounded-2xl p-6 cursor-pointer group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-black to-gray-800 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-white/20">
+                        <i class="fab fa-tiktok text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">TikTok Hooks</h3>
+                    <p class="text-gray-400 text-sm mb-4">Create engaging hooks that stop the scroll in 3 seconds</p>
+                    <div class="flex items-center text-primary text-sm font-medium">
+                        <span>Use Tool</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- QR Code Generator -->
+                <div onclick="openTool('qr')" class="glass-card rounded-2xl p-6 cursor-pointer group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-qrcode text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">QR Generator</h3>
+                    <p class="text-gray-400 text-sm mb-4">Create custom QR codes for URLs, text, WiFi, and more</p>
+                    <div class="flex items-center text-primary text-sm font-medium">
+                        <span>Use Tool</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Password Generator -->
+                <div onclick="openTool('password')" class="glass-card rounded-2xl p-6 cursor-pointer group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-yellow-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-key text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Password Gen</h3>
+                    <p class="text-gray-400 text-sm mb-4">Generate secure, strong passwords with custom options</p>
+                    <div class="flex items-center text-primary text-sm font-medium">
+                        <span>Use Tool</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Background Remover -->
+                <div onclick="openTool('bgremover')" class="glass-card rounded-2xl p-6 cursor-pointer group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-magic text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">BG Remover</h3>
+                    <p class="text-gray-400 text-sm mb-4">Remove image backgrounds instantly using AI technology</p>
+                    <div class="flex items-center text-primary text-sm font-medium">
+                        <span>Use Tool</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Resume Generator -->
+                <div onclick="openTool('resume')" class="glass-card rounded-2xl p-6 cursor-pointer group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-file-alt text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Resume Builder</h3>
+                    <p class="text-gray-400 text-sm mb-4">Create professional resumes with modern templates</p>
+                    <div class="flex items-center text-primary text-sm font-medium">
+                        <span>Use Tool</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tool Interface Container -->
+    <div id="toolContainer" class="hidden min-h-screen pt-20 pb-10 px-4">
+        <div class="max-w-6xl mx-auto">
+            <!-- Tool Header -->
+            <div class="flex items-center justify-between mb-8">
+                <button onclick="showDashboard()" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Dashboard</span>
+                </button>
+                <div id="toolTitle" class="text-2xl font-bold gradient-text"></div>
+                <div class="w-24"></div>
+            </div>
+
+            <!-- AI Paraphraser Tool -->
+            <div id="paraphraser" class="tool-section hidden">
+                <div class="glass rounded-3xl p-8">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-gray-300">Original Text</label>
+                            <textarea id="paraInput" class="input-field w-full h-64 rounded-xl p-4 text-white resize-none focus:outline-none" placeholder="Enter your text here to paraphrase..."></textarea>
+                            <div class="flex gap-3 mt-4">
+                                <select id="paraMode" class="input-field rounded-lg px-4 py-2 text-sm focus:outline-none">
+                                    <option value="standard">Standard</option>
+                                    <option value="fluency">Fluency</option>
+                                    <option value="creative">Creative</option>
+                                    <option value="formal">Formal</option>
+                                </select>
+                                <button onclick="paraphraseText()" class="btn-primary flex-1 py-2 rounded-lg font-medium">
+                                    <i class="fas fa-sync-alt mr-2"></i>Paraphrase
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-gray-300">Paraphrased Result</label>
+                            <textarea id="paraOutput" class="input-field w-full h-64 rounded-xl p-4 text-white resize-none focus:outline-none bg-green-500/5" readonly placeholder="Paraphrased text will appear here..."></textarea>
+                            <div class="flex gap-3 mt-4">
+                                <button onclick="copyToClipboard('paraOutput')" class="glass flex-1 py-2 rounded-lg font-medium hover:bg-white/10 transition-all">
+                                    <i class="fas fa-copy mr-2"></i>Copy
+                                </button>
+                                <button onclick="clearParaphraser()" class="glass flex-1 py-2 rounded-lg font-medium hover:bg-white/10 transition-all text-red-400">
+                                    <i class="fas fa-trash mr-2"></i>Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YouTube Title Generator -->
+            <div id="youtube" class="tool-section hidden">
+                <div class="glass rounded-3xl p-8">
+                    <div class="max-w-2xl mx-auto text-center mb-8">
+                        <input type="text" id="ytTopic" class="input-field w-full rounded-xl p-4 text-lg text-center mb-4 focus:outline-none" placeholder="Enter your video topic or keyword...">
+                        <select id="ytTone" class="input-field rounded-lg px-6 py-3 mb-6 focus:outline-none">
+                            <option value="clickbait">🔥 Clickbait/Viral</option>
+                            <option value="educational">📚 Educational</option>
+                            <option value="howto">🛠️ How-To</option>
+                            <option value="list">📋 Listicle</option>
+                            <option value="story">📖 Storytelling</option>
+                        </select>
+       // SHOW DASHBOARD
+function showDashboard() {
+  document.getElementById("toolContainer").classList.add("hidden");
+  document.getElementById("tools").classList.remove("hidden");
+}
+
+// SCROLL TO TOOLS
+function scrollToTools() {
+  document.getElementById("tools").scrollIntoView({ behavior: "smooth" });
+}
+
+// MOBILE MENU
+function toggleMobileMenu() {
+  const menu = document.getElementById("mobileMenu");
+  menu.classList.toggle("hidden");
+}
+
+// OPEN TOOL
+function openTool(toolId) {
+  document.getElementById("tools").classList.add("hidden");
+  document.getElementById("toolContainer").classList.remove("hidden");
+
+  const sections = document.querySelectorAll(".tool-section");
+  sections.forEach(section => section.classList.add("hidden"));
+
+  document.getElementById(toolId).classList.remove("hidden");
+
+  const titleMap = {
+    paraphraser: "AI Paraphraser",
+    youtube: "YouTube Title Generator",
+    tiktok: "TikTok Hook Generator",
+    qr: "QR Code Generator",
+    password: "Password Generator",
+    bgremover: "Background Remover",
+    resume: "Resume Builder"
+  };
+
+  document.getElementById("toolTitle").innerText = titleMap[toolId] || "Tool";
+}
+
+// COPY FUNCTION
+function copyToClipboard(id) {
+  const text = document.getElementById(id);
+  text.select();
+  document.execCommand("copy");
+  alert("Copied to clipboard!");
+}
+
+//////////////////////////////////////////////////
+// PASSWORD GENERATOR
+//////////////////////////////////////////////////
+
+function generatePassword() {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+  let password = "";
+
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  document.getElementById("passwordOutput").value = password;
+}
+
+//////////////////////////////////////////////////
+// QR CODE GENERATOR
+//////////////////////////////////////////////////
+
+function generateQR() {
+  const qrText = document.getElementById("qrInput").value;
+
+  const qrContainer = document.getElementById("qrResult");
+  qrContainer.innerHTML = "";
+
+  new QRCode(qrContainer, {
+    text: qrText,
+    width: 200,
+    height: 200
+  });
+}
+
+//////////////////////////////////////////////////
+// SIMPLE PARAPHRASER
+//////////////////////////////////////////////////
+
+function paraphraseText() {
+  const input = document.getElementById("paraInput").value;
+
+  if (!input) {
+    alert("Please enter text first.");
+    return;
+  }
+
+  const replacements = {
+    important: "essential",
+    big: "large",
+    small: "tiny",
+    good: "excellent",
+    bad: "poor",
+    fast: "quick",
+    slow: "gradual"
+  };
+
+  let output = input;
+
+  for (const word in replacements) {
+    const regex = new RegExp("\\b" + word + "\\b", "gi");
+    output = output.replace(regex, replacements[word]);
+  }
+
+  document.getElementById("paraOutput").value = output;
+}
+
+function clearParaphraser() {
+  document.getElementById("paraInput").value = "";
+  document.getElementById("paraOutput").value = "";
+}
+
+//////////////////////////////////////////////////
+// YOUTUBE TITLE GENERATOR
+//////////////////////////////////////////////////
+
+function generateYT() {
+  const topic = document.getElementById("ytTopic").value;
+
+  if (!topic) {
+    alert("Enter a topic first");
+    return;
+  }
+
+  const titles = [
+    `10 Things You Didn't Know About ${topic}`,
+    `The Truth About ${topic}`,
+    `How ${topic} Changed Everything`,
+    `Why Everyone Is Talking About ${topic}`,
+    `${topic} Explained in 5 Minutes`,
+    `The Ultimate Guide to ${topic}`,
+    `I Tried ${topic} for 7 Days`,
+    `${topic} Secrets Nobody Tells You`
+  ];
+
+  const result = titles.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+  document.getElementById("ytResults").innerHTML =
+    result.map(t => `<div class="glass p-3 rounded-lg">${t}</div>`).join("");
+}
+
+//////////////////////////////////////////////////
+// TIKTOK HOOK GENERATOR
+//////////////////////////////////////////////////
+
+function generateHook() {
+  const hooks = [
+    "Nobody talks about this...",
+    "This changed everything...",
+    "You won't believe this...",
+    "I wish I knew this earlier...",
+    "This trick is insane...",
+    "Watch this before it's deleted..."
+  ];
+
+  const randomHook = hooks[Math.floor(Math.random() * hooks.length)];
+
+  document.getElementById("hookOutput").innerText = randomHook;
+}
